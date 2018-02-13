@@ -28,21 +28,39 @@ There are 3 APIs to keep vouchers <br>
 url/api/voucher/generate <br> <br>
 Must be called as POST verb <br>
 This API you need pass offer id (specialOffer) and expiration date (expirationDate) formmated (yyyy-mm-dd) as json on body:<br>
-Example: { "specialOffer": "1", "expirationDate" : "2018-02-13" } <br> <br>
+Example: 
+```javascript
+{ 
+      "specialOffer": "1", 
+      "expirationDate" : "2018-02-13" 
+ } 
+```
 It will return a status ok if it is finished without error <br>
-Return: { <br>
-            "status": "ok" <br>
-        } <br> <br>
+Return: <br>
+```javascript
+{ 
+      "status": "ok"
+} 
+```
 
 ### Second API <br>
 url/api/voucher/use <br> <br>
 Must be called as PATCH verb <br>
 This API you need pass email(email) and voucher code(code) <br> 
-Example: { "email" : "recipientemail@dom.com", "code":"ab12ad542adc23ca34d" } <br> <br>
+Example: 
+```javascript
+{ 
+       "email" : "recipientemail@dom.com", 
+       "code":"ab12ad542adc23ca34d" 
+}
+```
 It will return a percent of voucher <br>
-Return: {<br>
-          "percent":11 <br>
-        } <br><br>
+Return: 
+```javascript
+{
+      "percent":11 <br>
+} 
+```
 
 ### Third API <br>
 url/api/voucher/{email} <br> <br>
@@ -51,10 +69,15 @@ This API you need to pass email on URL to get all valid vouchers for this email.
 
 Example: url/api/voucher/recipient@gmail.com <br><br>
 It will return all vouchers that belongs to e-mail with offer name <br>
-Return : [ { <br>
-              "offerName": "Offer name",<br>
-              "code": "03fd34dsr2344565dfds5y4drw67es58"<br>
-            }]<br><br>
+Return : 
+```javascript
+[ 
+   {
+      "offerName": "Offer name",<br>
+      "code": "03fd34dsr2344565dfds5y4drw67es58"<br>
+   }
+]
+ ```
 
 ## Database:
 
