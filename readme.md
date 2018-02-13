@@ -22,7 +22,7 @@ The enviroment is set up for my Heroku deployment, so you can use them to reach 
 
 ## Example to call outside of postman. <br>
 
-There 3 APIs to keep vouchers <br>
+There are 3 APIs to keep vouchers <br>
 
 ### First API <br>
 url/api/voucher/generate <br> <br>
