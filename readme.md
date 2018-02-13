@@ -25,6 +25,8 @@ The enviroment is set up for my Heroku deployment, so you can use them to reach 
 There are 3 APIs to keep vouchers <br>
 
 ### First API <br>
+Generate vouchers for all recipients and offer <br>
+URL<br>
 url/api/voucher/generate <br> <br>
 Must be called as POST verb <br>
 This API you need pass offer id (specialOffer) and expiration date (expirationDate) formmated (yyyy-mm-dd) as json on body:<br>
@@ -44,6 +46,8 @@ Return: <br>
 ```
 
 ### Second API <br>
+Use a specific voucher for a recipient <br>
+URL<br>
 url/api/voucher/use <br> <br>
 Must be called as PATCH verb <br>
 This API you need pass email(email) and voucher code(code) <br> 
@@ -63,6 +67,8 @@ Return:
 ```
 
 ### Third API <br>
+See all vouchers from specific e-mail<br>
+URL<br>
 url/api/voucher/{email} <br> <br>
 Must be called as GET verb <br>
 This API you need to pass email on URL to get all valid vouchers for this email. <br>
