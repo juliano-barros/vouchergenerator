@@ -6,6 +6,11 @@
  * Time: 1:04 AM
  */
 
+use App\Models\SpecialOffer;
+use App\Models\VoucherCode;
+use App\Models\Recipient;
+use Carbon\Carbon;
+
 class VoucherTest extends TestCase
 {
 
@@ -19,19 +24,15 @@ class VoucherTest extends TestCase
     public function test_generatevouchers_without_recipient(){
 
         // Creating special offer
-        $specialOffer = factory(App\Models\SpecialOffer::class)->create();
+        $specialOffer = factory(SpecialOffer::class)->create();
 
         // Generating a date
-        $date = \Carbon\Carbon::now()->addDays(rand(2,10));
+        $date = Carbon::now()->addDays(rand(2,10));
 
         // Generating voucher
-        $response = $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )->response;
-
-        // With or without recipient should be returnd status 200
-        self::assertTrue($response->getStatusCode() === 200, 'Status code from vouchergenerator should be 200');
-
-        // Without recipient should be returned any voucher
-        self::assertTrue(\App\Models\VoucherCode::count() === 0, 'Should be generate 0 vouchers');
+        $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )
+             ->seeStatusCode(200)
+             ->assertEquals(0, VoucherCode::count(), 'Should be generate 0 vouchers');
 
     }
 
@@ -43,22 +44,18 @@ class VoucherTest extends TestCase
     public function test_generatevouchers_with_recipient(){
 
         // Creating a special offer
-        $specialOffer = factory(App\Models\SpecialOffer::class)->create();
+        $specialOffer = factory(SpecialOffer::class)->create();
 
         // Creating recipients
-        factory(App\Models\Recipient::class, 5)->create();
+        factory(Recipient::class, 5)->create();
 
         // Generating a date
-        $date = \Carbon\Carbon::now()->addDays(rand(2,10));
+        $date = Carbon::now()->addDays(rand(2,10));
 
         // Generating voucher
-        $response = $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )->response;
-
-        // After generate vouchers should be returned status code 200
-        self::assertTrue($response->getStatusCode() === 200, 'Status code from voucher should be 200');
-
-        // With 5 recipients should generate 5 vouchers
-        self::assertTrue(\App\Models\VoucherCode::count() === 5, 'Should be generate 5 vouchers');
+        $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )
+             ->seeStatusCode(200)
+             ->assertEquals(5, VoucherCode::count(), 'Should be generate 5 vouchers');
 
     }
 
@@ -71,37 +68,37 @@ class VoucherTest extends TestCase
     public function test_use_all_vouchers(){
 
         // Creating a special offer
-        $specialOffer = factory(App\Models\SpecialOffer::class)->create();
+        $specialOffer = factory(SpecialOffer::class)->create();
 
         // Creating recipients
-        $recipients = factory(App\Models\Recipient::class, 5)->create();
+        $recipients = factory(Recipient::class, 5)->create();
 
         // Generating a date
-        $date = \Carbon\Carbon::now()->addDays(rand(2,10));
+        $date = Carbon::now()->addDays(rand(2,10));
 
         // Generating voucher
-        $response = $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )->response;
+        $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )
+             ->seeStatusCode(200);
 
-        self::assertTrue($response->getStatusCode() === 200, 'Status code from vouchergenerator should be 200');
 
         // Loop to use vouchers
         foreach ( $recipients as $recipient){
 
             // Getting vouchers free for this recipient
-            $response = $this->get('/api/voucher/' . $recipient->email )->response;
+            $response = $this->get('/api/voucher/' . $recipient->email )
+                             ->seeStatusCode(200)->response;
 
-            // Should be returned 200
-            self::seeStatusCode(200);
+            $responseJson = json_decode($response->getContent())[0];
 
             // Verifying if it is returning offername and code voucher
-            self::assertTrue( json_decode($response->getContent())[0]->offerName !== "", 'Shouldn\'t be empty');
-            self::assertTrue( json_decode($response->getContent())[0]->code !== "", 'Shouldn\'t be empty');
+            self::assertTrue( $responseJson->offerName !== "", 'Shouldn\'t be empty');
+            self::assertTrue( $responseJson->code !== "", 'Shouldn\'t be empty');
 
             // Verifying if it is json
             self::assertJson($response->getContent());
 
             // Getting first code,
-            $code = json_decode($response->getContent())[0]->code;
+            $code = $responseJson->code;
 
             // Using this voucher
             $this->patch('/api/voucher/use', array("email" => $recipient->email, "voucher" => $code ) )->response;
@@ -112,7 +109,7 @@ class VoucherTest extends TestCase
         }
 
         // With 5 recipients should generate 5 vouchers
-        self::assertTrue(\App\Models\VoucherCode::count() === 5, 'Should be generate 5 vouchers');
+        self::assertEquals(5, VoucherCode::count(), 'Should be generate 5 vouchers');
 
     }
 
@@ -124,60 +121,54 @@ class VoucherTest extends TestCase
     public function test_voucher_alreadyinuse(){
 
         // Creating a special offer
-        $specialOffer = factory(App\Models\SpecialOffer::class)->create();
+        $specialOffer = factory(SpecialOffer::class)->create();
 
         // Creating recipients
-        $recipients = factory(App\Models\Recipient::class, 5)->create();
+        $recipients = factory(Recipient::class, 5)->create();
 
         // Generating a date
-        $date = \Carbon\Carbon::now()->addDays(rand(2,10));
+        $date = Carbon::now()->addDays(rand(2,10));
 
         // Generating voucher
-        $response = $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )->response;
+        $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )
+             ->seeStatusCode(200);
 
-        // Should return true
-        self::assertTrue($response->getStatusCode() === 200, 'Status code from vouchergenerator should be 200');
 
         foreach ( $recipients as $recipient){
 
 
             // Getting vouchers free for this recipient
-            $response = $this->get('/api/voucher/' . $recipient->email )->response;
-
-            // Should be returned 200
-            self::seeStatusCode(200);
+            $response = $this->get('/api/voucher/' . $recipient->email )->seeStatusCode(200)->response->getContent();
 
             // Verifying if it is json
-            self::assertJson($response->getContent());
+            self::assertJson($response);
 
             // Getting first code,
-            $code = json_decode($response->getContent())[0]->code;
+            $code = json_decode($response)[0]->code;
 
             // Using this voucher
-            $response = $this->patch('/api/voucher/use', array("email" => $recipient->email, "voucher" => $code ) )->response;
+            $response = $this->patch('/api/voucher/use', array("email" => $recipient->email, "voucher" => $code ) )
+                             ->seeStatusCode(200)
+                             ->response->getContent();
 
-            // Should return 200
-            self::seeStatusCode(200);
 
             // Verifying if it is json
-            self::assertJson($response->getContent());
+            self::assertJson($response);
 
             // Getting first code,
-            $percent = floatval(json_decode($response->getContent())->percent);
+            $percent = floatval(json_decode($response)->percent);
 
             // Checking if returned a valid percent
-            self::assertTrue($percent > 0, $response->getContent());
+            self::assertTrue($percent > 0, $response);
 
             // Trying to get same code again
-            $this->patch('/api/voucher/use', array("email" => $recipient->email, "voucher" => $code ) )->response;
-
-            // Should return 410 because it is already in use
-            self::seeStatusCode(410);
+            $this->patch('/api/voucher/use', array("email" => $recipient->email, "voucher" => $code ) )
+                 ->seeStatusCode(410);
 
         }
 
         // With 5 recipients should generate 5 vouchers
-        self::assertTrue(\App\Models\VoucherCode::count() === 5, 'Should be generate 5 vouchers');
+        self::assertEquals(5, VoucherCode::count(), 'Should be generate 5 vouchers');
     }
 
     /**
@@ -188,30 +179,26 @@ class VoucherTest extends TestCase
     public function test_vouchernotfound(){
 
         // Creating a special offer
-        $specialOffer = factory(App\Models\SpecialOffer::class)->create();
+        $specialOffer = factory(SpecialOffer::class)->create();
 
         // Creating recipients
-        $recipients = factory(App\Models\Recipient::class, 5)->create();
+        $recipients = factory(Recipient::class, 5)->create();
 
         // Generating a date
-        $date = \Carbon\Carbon::now()->addDays(rand(2,10));
+        $date = Carbon::now()->addDays(rand(2,10));
 
         // Generating voucher
-        $response = $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )->response;
-
-        self::assertTrue($response->getStatusCode() === 200, 'Status code from vouchergenerator should be 200');
+        $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )
+             ->seeStatusCode(200);
 
         foreach ( $recipients as $recipient){
 
 
             // Getting vouchers free for this recipient, however it would get empty
-            $response = $this->get('/api/voucher/' . $recipient->email .'notfound' )->response;
-
-            // Should return 200
-            self::seeStatusCode(200);
+            $response = $this->get('/api/voucher/' . $recipient->email .'notfound' )->seeStatusCode(200)->response->getContent();
 
             // Should be returned empty array string
-            self::assertTrue($response->getContent() === '[]');
+            self::assertEquals('[]', $response);
 
         }
 
@@ -226,72 +213,63 @@ class VoucherTest extends TestCase
     public function test_use_voucher_another_recipient(){
 
         // Creating a special offer
-        $specialOffer = factory(App\Models\SpecialOffer::class)->create();
+        $specialOffer = factory(SpecialOffer::class)->create();
 
         // Creating recipients
-        $recipients = factory(App\Models\Recipient::class, 2)->create();
+        $recipients = factory(Recipient::class, 2)->create();
 
         // Generating a date
-        $date = \Carbon\Carbon::now()->addDays(rand(2,10));
+        $date = Carbon::now()->addDays(rand(2,10));
 
         // Generating voucher
-        $response = $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )->response;
+        $this->post('/api/voucher/generate', [
+                                                    "specialOffer" => $specialOffer->id,
+                                                    "expirationDate" => $date->format('Y-m-d')
+                                                  ] )
+             ->seeStatusCode(200)
+             ->assertEquals(2, VoucherCode::count(), 'Should be generate 2 vouchers');
 
-        // Should return 200
-        self::assertTrue($response->getStatusCode() === 200, 'Status code from vouchergenerator should be 200');
-
-        // With 2 recipients should generate 2 vouchers
-        self::assertTrue(\App\Models\VoucherCode::count() === 2, 'Should be generate 2 vouchers');
 
         // Getting voucher free for the first
-        $response = $this->get('/api/voucher/' . $recipients[0]->email )->response;
-
-        // Should be returned 200
-        self::seeStatusCode(200);
+        $response = $this->get('/api/voucher/' . $recipients[0]->email )
+                         ->seeStatusCode(200)->response->getContent();
 
         // Verifying if it is json
-        self::assertJson($response->getContent());
+        self::assertJson($response);
 
         // Getting first code,
-        $code = json_decode($response->getContent())[0]->code;
+        $code = json_decode($response)[0]->code;
 
         // Using the voucher from first recipient to second
-        $this->patch('/api/voucher/use', array("email" => $recipients[1]->email, "voucher" => $code ) )->response;
+        $this->patch('/api/voucher/use', array("email" => $recipients[1]->email, "voucher" => $code ) )->seeStatusCode(403);
 
-        // Should return 403
-        self::seeStatusCode(403);
 
         // Checking if codes continue available for users, because it didn't use before
 
         // Getting voucher free for the first
-        $response = $this->get('/api/voucher/' . $recipients[0]->email )->response;
+        $response = $this->get('/api/voucher/' . $recipients[0]->email )->seeStatusCode(200)->response->getContent();
 
-        // Should be returned 200
-        self::seeStatusCode(200);
 
         // Verifying if it is json
-        self::assertJson($response->getContent());
+        self::assertJson($response);
 
         // Getting first code,
-        $code = json_decode($response->getContent());
+        $code = json_decode($response);
 
         // Should be 1 code
-        self::assertTrue( count($code) === 1, 'Should be 1 code');
+        self::assertEquals( 1, count($code), 'Should be 1 code');
 
         // Getting voucher free for the first
-        $response = $this->get('/api/voucher/' . $recipients[1]->email )->response;
-
-        // Should be returned 200
-        self::seeStatusCode(200);
+        $response = $this->get('/api/voucher/' . $recipients[1]->email )->seeStatusCode(200)->response->getContent();
 
         // Verifying if it is json
-        self::assertJson($response->getContent());
+        self::assertJson($response);
 
         // Getting first code,
-        $code = json_decode($response->getContent());
+        $code = json_decode($response);
 
         // Should be 1 code
-        self::assertTrue( count($code) === 1, 'Should be 1 code');
+        self::assertEquals( 1, count($code), 'Should be 1 code');
 
     }
 
@@ -303,74 +281,57 @@ class VoucherTest extends TestCase
     public function test_more_than_one_generate(){
 
         // Creating a special offer
-        $specialOffer = factory(App\Models\SpecialOffer::class)->create();
+        $specialOffer = factory(SpecialOffer::class)->create();
 
         // Creating recipients
-        $recipients = factory(App\Models\Recipient::class, 2)->create();
+        $recipients = factory(Recipient::class, 2)->create();
 
         // Generating a date
-        $date = \Carbon\Carbon::now()->addDays(rand(2,10));
+        $date = Carbon::now()->addDays(rand(2,10));
 
         // Generating voucher
-        $response = $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )->response;
-
-        // Should return 200
-        self::assertTrue($response->getStatusCode() === 200, 'Status code from vouchergenerator should be 200');
-
-        // With 2 recipients should generate 2 vouchers
-        self::assertTrue(\App\Models\VoucherCode::count() === 2, 'Should be generate 2 vouchers');
+        $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )
+             ->seeStatusCode(200)
+             ->assertEquals(2, VoucherCode::count(), 'Should be generate 2 vouchers');
 
         // Creating another special offer
-        $specialOffer = factory(App\Models\SpecialOffer::class)->create();
+        $specialOffer = factory(SpecialOffer::class)->create();
 
         // Generating a date
-        $date = \Carbon\Carbon::now()->addDays(rand(2,10));
+        $date = Carbon::now()->addDays(rand(2,10));
 
         // Generating voucher
-        $response = $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )->response;
-
-        // Should return 200
-        self::assertTrue($response->getStatusCode() === 200, 'Status code from vouchergenerator should be 200');
-
-        // With 2 recipients should generate twice should be 4 vouchers
-        self::assertTrue(\App\Models\VoucherCode::count() === 4, 'Should be generate 4 vouchers');
+        $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )
+             ->seeStatusCode(200)
+             ->assertEquals(4, VoucherCode::count(), 'Should be generate 4 vouchers');
 
         foreach ($recipients as $recipient){
 
             // Getting vouchers free for this recipient
-            $response = $this->get('/api/voucher/' . $recipient->email )->response;
-
-            // Should be returned 200
-            self::seeStatusCode(200);
+            $response = $this->get('/api/voucher/' . $recipient->email )->seeStatusCode(200)->response->getContent();
 
             // Verifying if it is json
-            self::assertJson($response->getContent());
+            self::assertJson($response);
 
             // Getting all codes available,
-            $code = json_decode($response->getContent());
+            $code = json_decode($response);
 
-            self::assertTrue( count($code) == 2, 'Each recipient should be taken 2 codes available');
+            self::assertEquals( 2,count($code), 'Each recipient should be taken 2 codes available');
 
             // Using this voucher
-            $response = $this->patch('/api/voucher/use', array("email" => $recipient->email, "voucher" => $code[0]->code ) )->response;
-
-            // Should return 200
-            self::seeStatusCode(200);
+            $this->patch('/api/voucher/use', array("email" => $recipient->email, "voucher" => $code[0]->code ) )->seeStatusCode(200);
 
             // Getting vouchers free for this recipient
-            $response = $this->get('/api/voucher/' . $recipient->email )->response;
-
-            // Should be returned 200
-            self::seeStatusCode(200);
+            $response = $this->get('/api/voucher/' . $recipient->email )->seeStatusCode(200)->response->getContent();
 
             // Verifying if it is json
-            self::assertJson($response->getContent());
+            self::assertJson($response);
 
             // Getting first code available,
-            $code = json_decode($response->getContent());
+            $code = json_decode($response);
 
             //Now this recipient has only one voucher available
-            self::assertTrue( count($code) == 1, 'Each recipient should be taken 1 codes available');
+            self::assertEquals( 1,count($code), 'Each recipient should be taken 1 codes available');
 
         }
 
@@ -384,36 +345,31 @@ class VoucherTest extends TestCase
     public function test_voucher_expired(){
 
         // Creating a special offer
-        $specialOffer = factory(App\Models\SpecialOffer::class)->create();
+        $specialOffer = factory(SpecialOffer::class)->create();
 
         // Creating recipients
-        $recipients = factory(App\Models\Recipient::class, 2)->create();
+        $recipients = factory(Recipient::class, 2)->create();
 
         // Generating a date
-        $date = \Carbon\Carbon::now()->addDays(rand(-10,-2));
+        $date = Carbon::now()->addDays(rand(-10,-2));
 
         // Generating voucher
-        $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) )->response;
+        $this->post('/api/voucher/generate', array("specialOffer" => $specialOffer->id, "expirationDate" => $date->format('Y-m-d') ) );
 
         foreach ($recipients as $recipient){
 
             // Getting vouchers free for this recipient
-            $response = $this->get('/api/voucher/' . $recipient->email )->response;
-
-            // Should be returned 200
-            self::seeStatusCode(200);
+            $response = $this->get('/api/voucher/' . $recipient->email )->seeStatusCode(200)->response->getContent();
 
             // Verifying if it is json
-            self::assertJson($response->getContent());
+            self::assertJson($response);
 
             // Getting all codes available,
-            $code = json_decode($response->getContent());
+            $code = json_decode($response);
 
             // Using this voucher
-            $response = $this->patch('/api/voucher/use', array("email" => $recipient->email, "voucher" => $code[0]->code ) )->response;
+            $this->patch('/api/voucher/use', array("email" => $recipient->email, "voucher" => $code[0]->code ) )->seeStatusCode(409);
 
-            // Should return 409 voucher expired
-            self::seeStatusCode(409);
         }
     }
 
