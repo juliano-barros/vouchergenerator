@@ -3,9 +3,9 @@
 
 This is an micro-service app to generate voucher codes for recipients and offers already stored.
 
-## About project. <br>
+## Description <br>
 
-It is made in: <br>
+It is built with: <br>
 Lumen PHP Framework (5.6) <br>
 Mysql <br>
 Deployed on Heroku: https://vouchergenerator.herokuapp.com/api/ <br>
@@ -13,23 +13,23 @@ PHPUnit <br>
 
 ## Configuration test (Postman). <br>
 
-You can make your tests through Postman, on project you can find postmanexamples directory  <br>
+You can make your tests using Postman. In the root project folder you can find a postmanexamples directory  <br>
 [Postmanexample directory](https://github.com/juliano-barros/vouchergenerator/tree/master/postmanexamples) <br>
 Inside of this directory you will find 2 files: <br>
-[VoucherGenerator.postman_collection.json](https://github.com/juliano-barros/vouchergenerator/blob/master/postmanexamples/VoucherGenerator.postman_collection.json) this file you must import on your postman on import collection. <br>
-[VoucherGenerator.postman_environment.json](https://github.com/juliano-barros/vouchergenerator/blob/master/postmanexamples/VoucherGenerator.postman_environment.json) this second file you must import on your enviroment options. <br> <br>
-The enviroment is set up for my Heroku deployment, so you can use them to reach out my micro-service app.
+[VoucherGenerator.postman_collection.json](https://github.com/juliano-barros/vouchergenerator/blob/master/postmanexamples/VoucherGenerator.postman_collection.json) this file must be imported on your postman on import collection. <br>
+[VoucherGenerator.postman_environment.json](https://github.com/juliano-barros/vouchergenerator/blob/master/postmanexamples/VoucherGenerator.postman_environment.json) this second file must be imported on your enviroment options. <br> <br>
+This environment was preconfigured to be used with my Heroku deployment. Feel free to use them to reach out my micro-service app test.
 
 ## Example to call outside of postman. <br>
 
-There are 3 APIs to keep vouchers <br>
+There are 3 endpoints to keep vouchers <br>
 
-### First API <br>
+### First Endpoint <br>
 Generate vouchers for all recipients and offer <br>
 URL<br>
 url/api/voucher/generate <br> <br>
-Must be called as POST verb <br>
-This API you need pass offer id (specialOffer) and expiration date (expirationDate) formmated (yyyy-mm-dd) as json on body:<br>
+Must be called as POST method <br>
+This endpoint requires offer id (specialOffer) and expiration date (expirationDate) formmated (yyyy-mm-dd) as json on body:<br>
 Example: 
 ```javascript
 { 
@@ -38,19 +38,19 @@ Example:
  } 
 ```
 It will return a status ok if it is finished without error <br>
-Return: <br>
+Return(json): <br>
 ```javascript
 { 
       "status": "ok"
 } 
 ```
 
-### Second API <br>
+### Second Endpoint <br>
 Use a specific voucher for a recipient <br>
 URL<br>
 url/api/voucher/use <br> <br>
-Must be called as PATCH verb <br>
-This API you need pass email(email) and voucher code(code) <br> 
+Must be called as PATCH method <br>
+This endpoint requires email(email) and voucher code(code) as json on body:<br> 
 Example: 
 ```javascript
 { 
@@ -59,23 +59,23 @@ Example:
 }
 ```
 It will return a percent of voucher <br>
-Return: 
+Return (json):<br>
 ```javascript
 {
       "percent":11 
 } 
 ```
 
-### Third API <br>
-See all vouchers from specific e-mail<br>
+### Third Endpoint <br>
+See all vouchers from a specific e-mail<br>
 URL<br>
 url/api/voucher/{email} <br> <br>
-Must be called as GET verb <br>
-This API you need to pass email on URL to get all valid vouchers for this email. <br>
+Must be called as GET method <br>
+This endpoint requires email on URL to get all valid vouchers for this email. <br>
 
 Example: url/api/voucher/recipient@gmail.com <br><br>
-It will return all vouchers that belongs to e-mail with offer name <br>
-Return : 
+It will return all vouchers that belongs to an e-mail with an offer name <br>
+Return (json): <br> 
 ```javascript
 [ 
    {
