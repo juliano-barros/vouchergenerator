@@ -21,17 +21,20 @@ class VoucherRepository
      * Generating codes for all recipients
      *
      * @param SpecialOffer $specialOffer
-     * @param DateTime $dateExpiration
+     * @param Carbon $expirationDate
      */
-    public function voucherGenerate(SpecialOffer $specialOffer, Carbon $dateExpiration){
+    public function voucherGenerate(SpecialOffer $specialOffer, Carbon $expirationDate){
 
+        // Getting all recipients
         $recipients = Recipient::all();
+
+        // Generating all vouchers code
         foreach ($recipients as $recipient){
             $voucher = new VoucherCode();
-            $voucher->recipient_id= $recipient->id;
-            $voucher->special_offer_id = $specialOffer->id;
+            $voucher->recipient()->associate( $recipient );
+            $voucher->specialOffer()->associate($specialOffer);
             $voucher->code = $this->getKey();
-            $voucher->expiration_date = $dateExpiration;
+            $voucher->expiration_date = $expirationDate;
             $voucher->save();
         }
 
@@ -63,15 +66,20 @@ class VoucherRepository
 
         if ( $voucherCode && ( $voucherCode->recipient->email === $email) ){
             if ( $voucherCode->used ) {
-                return response(["error" => "voucher already in use"], 410);
+                return response()->json(["error" => "voucher already in use"], 410);
             }else{
-                $voucherCode->used = true;
-                $voucherCode->save();
-                return response(["percent" => $voucherCode->specialOffer->percentage], 200);
+                $date = Carbon::now();
+                if ( $date > $voucherCode->expiration_date){
+                    return response()->json(["error" => "Voucher expired"], 409);
+                }else{
+                    $voucherCode->used = true;
+                    $voucherCode->save();
+                    return response()->json(["percent" => $voucherCode->specialOffer->percentage]);
+                }
 
             }
         }else{
-            return response(["error" => "Invalid voucher"], 403 );
+            return response( )->json(["error" => "Invalid voucher"], 403 );
         }
     }
 

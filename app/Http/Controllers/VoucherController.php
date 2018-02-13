@@ -41,17 +41,17 @@ class VoucherController extends Controller{
 
         $this->validate($request, [
             'specialOffer' => 'required',
-            'dateExpiration' => 'required'
+            'expirationDate' => 'required'
         ]);
 
         $specialOffer = SpecialOffer::findOrFail($request->specialOffer);
 
-        $dateExpiration = Carbon::createFromFormat('Y-m-d', $request->dateExpiration);
+        $expirationDate = Carbon::createFromFormat('Y-m-d', $request->expirationDate);
 
-        $this->repository->voucherGenerate($specialOffer, $dateExpiration);
+        $this->repository->voucherGenerate($specialOffer, $expirationDate);
 
         // If it is generated successfully, return status ok
-        return response(["status" => "ok"]);
+        return response()->json(['status' => 'ok']);
 
     }
 
@@ -83,7 +83,7 @@ class VoucherController extends Controller{
     public function voucherRecipient(Request $request, $email){
 
         // Getting all voucher valids
-        return response($this->repository->voucherRecipient($email)->get(), 200);
+        return response()->json($this->repository->voucherRecipient($email)->get());
 
     }
 
