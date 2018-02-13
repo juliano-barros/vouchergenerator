@@ -11,13 +11,20 @@ Mysql <br>
 Deployed on Heroku: https://vouchergenerator.herokuapp.com/api/ <br>
 PHPUnit <br>
 
+## Database Schema
+
+![Database schema](/docs/DatabaseVoucherGenerator.png)
+
+
 ## Configuration test (Postman). <br>
 
 You can make your tests using Postman. In the root project folder you can find a postmanexamples directory  <br>
 [Postmanexample directory](https://github.com/juliano-barros/vouchergenerator/tree/master/postmanexamples) <br>
 Inside of this directory you will find 2 files: <br>
 [VoucherGenerator.postman_collection.json](https://github.com/juliano-barros/vouchergenerator/blob/master/postmanexamples/VoucherGenerator.postman_collection.json) this file must be imported on your postman on import collection. <br>
-[VoucherGenerator.postman_environment.json](https://github.com/juliano-barros/vouchergenerator/blob/master/postmanexamples/VoucherGenerator.postman_environment.json) this second file must be imported on your enviroment options. <br> <br>
+![Postman collection](/docs/postmanCollection.png)<br>
+[VoucherGenerator.postman_environment.json](https://github.com/juliano-barros/vouchergenerator/blob/master/postmanexamples/VoucherGenerator.postman_environment.json) this second file must be imported on your enviroment options. <br>
+![Postman collection](/docs/postmanEnviroment.png) <br><br>
 This environment was preconfigured to be used with my Heroku deployment. Feel free to use them to reach out my micro-service app test.
 
 ## Example to call outside of postman. <br>
