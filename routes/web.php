@@ -14,3 +14,9 @@
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
+
+$router->post('/vouchergenerator', 'VoucherController@voucherGenerate');
+
+$router->post('/voucheruse', 'VoucherController@voucherUse');
+
+$router->get('/voucher/{email}', 'VoucherController@voucherRecipient');
