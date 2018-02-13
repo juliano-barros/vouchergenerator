@@ -58,7 +58,7 @@ It will return a percent of voucher <br>
 Return: 
 ```javascript
 {
-      "percent":11 <br>
+      "percent":11 
 } 
 ```
 
@@ -73,8 +73,8 @@ Return :
 ```javascript
 [ 
    {
-      "offerName": "Offer name",<br>
-      "code": "03fd34dsr2344565dfds5y4drw67es58"<br>
+      "offerName": "Offer name",
+      "code": "03fd34dsr2344565dfds5y4drw67es58"
    }
 ]
  ```
