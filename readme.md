@@ -1,3 +1,85 @@
+
+# Voucher Generator
+
+This is an micro-service app to generate voucher codes for recipients and offers already stored.
+
+## About project. <br>
+
+It is made in: <br>
+Lumen PHP Framework (5.6) <br>
+Mysql <br>
+Deployed on Heroku: https://vouchergenerator.herokuapp.com/api/ <br>
+PHPUnit <br>
+
+## Configuration test (Postman). <br>
+
+You can make your tests through Postman, on project you can find postmanexamples directory  <br>
+[Postmanexample directory](https://github.com/juliano-barros/vouchergenerator/tree/master/postmanexamples) <br>
+Inside of this directory you will find 2 files: <br>
+[VoucherGenerator.postman_collection.json](https://github.com/juliano-barros/vouchergenerator/blob/master/postmanexamples/VoucherGenerator.postman_collection.json) this file you must import on your postman on import collection. <br>
+[VoucherGenerator.postman_environment.json](https://github.com/juliano-barros/vouchergenerator/blob/master/postmanexamples/VoucherGenerator.postman_environment.json) this second file you must import on your enviroment options. <br> <br>
+The enviroment is set up for my Heroku deployment, so you can use them to reach out my micro-service app.
+
+## Example to call outside of postman. <br>
+
+There 3 APIs to keep vouchers <br>
+
+### First API <br>
+url/api/voucher/generate <br> <br>
+Must be called as POST verb <br>
+This API you need pass offer id (specialOffer) and expiration date (expirationDate) formmated (yyyy-mm-dd) as json on body:<br>
+Example: { "specialOffer": "1", "expirationDate" : "2018-02-13" } <br> <br>
+It will return a status ok if it is finished without error <br>
+Return: { <br>
+            "status": "ok" <br>
+        } <br> <br>
+
+### Second API <br>
+url/api/voucher/use <br> <br>
+Must be called as PATCH verb <br>
+This API you need pass email(email) and voucher code(code) <br> 
+Example: { "email" : "recipientemail@dom.com", "code":"ab12ad542adc23ca34d" } <br> <br>
+It will return a percent of voucher <br>
+Return: {<br>
+          "percent":11 <br>
+        } <br><br>
+
+### Third API <br>
+url/api/voucher/{email} <br> <br>
+Must be called as GET verb <br>
+This API you need to pass email on URL to get all valid vouchers for this email. <br>
+
+Example: url/api/voucher/recipient@gmail.com <br><br>
+It will return all vouchers that belongs to e-mail with offer name <br>
+Return : [ { <br>
+              "offerName": "Offer name",<br>
+              "code": "03fd34dsr2344565dfds5y4drw67es58"<br>
+            }]<br><br>
+
+## Database:
+
+List all data stored on Heroku Database
+
+### Special offers stored
+
+ID|Name   | Percent
+--|-------|--------:
+1|Black friday| 15.00%
+11|Valentines day|20.00%
+
+
+### Recipients stored
+
+ID| Name      | E-mail
+--|----------|----------
+1|recipient1|recipient1@gmail.com
+11|recipient2|recipient2@gmail.com
+21|recipient3|recipient3@gmail.com
+31|recipient4|recipient4@gmail.com
+
+
+
+
 # Lumen PHP Framework
 
 [![Build Status](https://travis-ci.org/laravel/lumen-framework.svg)](https://travis-ci.org/laravel/lumen-framework)
