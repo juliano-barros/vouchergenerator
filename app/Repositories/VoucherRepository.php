@@ -18,6 +18,8 @@ class VoucherRepository
 {
 
     /**
+     * Generating codes for all recipients
+     *
      * @param SpecialOffer $specialOffer
      * @param DateTime $dateExpiration
      */
@@ -36,6 +38,8 @@ class VoucherRepository
     }
 
     /**
+     * Code generate
+     *
      * @return string
      */
     private function getKey(){
@@ -47,6 +51,8 @@ class VoucherRepository
 
 
     /**
+     * Use an voucher for specific recipient
+     *
      * @param string $email
      * @param string $voucher
      * @return \Illuminate\Http\Response|\Laravel\Lumen\Http\ResponseFactory
@@ -69,6 +75,11 @@ class VoucherRepository
         }
     }
 
+    /**
+     * Get all voucher codes valid for this email with its respective offer. (Valid it is when exists voucher for that email and it wasn't used yet)
+     * @param string $email
+     * @return mixed
+     */
     public function voucherRecipient(string $email){
 
         $voucherCode = VoucherCode::select("special_offers.name as offerName", "voucher_codes.code")->

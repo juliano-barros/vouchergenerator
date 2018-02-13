@@ -14,46 +14,75 @@ use App\Repositories\VoucherRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
-class VoucherController extends Controller
-{
+class VoucherController extends Controller{
 
     private $repository;
 
     /**
+     * Getting a repository to work with
+     *
      * VoucherController constructor.
      * @param VoucherRepository $repository
      */
     public function __construct( VoucherRepository $repository )
     {
+        // Repository to persist data
         $this->repository = $repository;
     }
 
 
+    /**
+     * API to generate codes for all users
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response|\Laravel\Lumen\Http\ResponseFactory
+     */
     public function voucherGenerate(Request $request){
 
+        $this->validate($request, [
+            'specialOffer' => 'required',
+            'dateExpiration' => 'required'
+        ]);
+
         $specialOffer = SpecialOffer::findOrFail($request->specialOffer);
+
         $dateExpiration = Carbon::createFromFormat('Y-m-d', $request->dateExpiration);
+
         $this->repository->voucherGenerate($specialOffer, $dateExpiration);
 
+        // If it is generated successfully, return status ok
         return response(["status" => "ok"]);
 
     }
 
+    /**
+     * API to use a voucher code
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response|\Laravel\Lumen\Http\ResponseFactory
+     */
     public function voucherUse( Request $request ){
 
-        if ( ! isset($request->email) || $request->email === ""  ){
-            return response(["error"=>"Invalid Request"], 403);
-        }
+        // Validating request
+        $this->validate($request, [
+            'email' => 'required|email',
+            'voucher' => 'required'
+        ]);
 
-        if ( ! isset($request->voucher) || $request->voucher === ""  ){
-            return response(["error"=>"Invalid Request"], 403);
-        }
-
+        // Use voucher passed, repository already return a response
         return $this->repository->useVoucher($request->email, $request->voucher);
     }
 
+    /**
+     * Getting all vouchers for an email
+     *
+     * @param Request $request
+     * @param $email
+     * @return \Illuminate\Http\Response|\Laravel\Lumen\Http\ResponseFactory
+     */
     public function voucherRecipient(Request $request, $email){
 
+        // Getting all voucher valids
         return response($this->repository->voucherRecipient($email)->get(), 200);
 
     }

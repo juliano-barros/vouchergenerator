@@ -17,3 +17,17 @@ $factory->define(App\User::class, function (Faker\Generator $faker) {
         'email' => $faker->email,
     ];
 });
+
+$factory->define(App\Models\Recipient::class, function (Faker\Generator $faker) {
+    return [
+        'name' => $faker->name,
+        'email' => $faker->email,
+    ];
+});
+
+$factory->define(App\Models\SpecialOffer::class, function (Faker\Generator $faker) {
+    return [
+        'name' => $faker->name,
+        'percentage' => rand(1,50),
+    ];
+});
