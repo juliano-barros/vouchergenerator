@@ -1,0 +1,101 @@
+{
+	"info": {
+		"name": "VoucherGenerator",
+		"_postman_id": "10bf4727-1b53-bd7e-779c-bd49809292d8",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Voucher",
+			"description": "",
+			"item": [
+				{
+					"name": "Voucher Generator",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"specialOffer\": \"1\",\n\t\"expirationDate\": \"2018-02-25\"\n}"
+						},
+						"url": {
+							"raw": "{{MAIN_URL}}voucher/generate",
+							"host": [
+								"{{MAIN_URL}}voucher"
+							],
+							"path": [
+								"generate"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Voucher Use",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"email\": \"recipient1@gmail.com\",\n\t\"voucher\": \"1f431fe38d7bb4812c5f1b2d085ef94c\"\n}"
+						},
+						"url": {
+							"raw": "{{MAIN_URL}}voucher/use",
+							"host": [
+								"{{MAIN_URL}}voucher"
+							],
+							"path": [
+								"use"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Vouchers",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "2d05f9c5-e8cc-46b3-a29c-b84b4aba6424",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "{{MAIN_URL}}voucher/recipient1@gmail.com",
+							"host": [
+								"{{MAIN_URL}}voucher"
+							],
+							"path": [
+								"recipient1@gmail.com"
+							]
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
